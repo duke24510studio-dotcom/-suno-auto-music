@@ -1,6 +1,32 @@
 {
-  "updated_at": "2026-07-16T19:23:16.221Z",
+  "updated_at": "2026-07-16T21:56:08.023Z",
   "tracks": [
+    {
+      "id": "d21e01d8-05f9-48dc-8f87-b465102c6a70",
+      "title": "森川のゆらぎ",
+      "prompt": "リラックスできるアンビエント、森と小川の音",
+      "tags": "Ambient with slow-evolving pads, soft forest field-recording textures, and a gentle brook bed; verse-like sections dissolve into longer swells, then a sparse middle break opens for filtered air and distant chimes before the final return. Breath-like synth layers and subtle stereo ripples carry the motion, with a close, intimate mix that feels calm, wide, and earthy.",
+      "lyrics": "[Instrumental]",
+      "audio_url": "https://cdn1.suno.ai/d21e01d8-05f9-48dc-8f87-b465102c6a70.mp3",
+      "image_url": "https://cdn2.suno.ai/image_large_d21e01d8-05f9-48dc-8f87-b465102c6a70.jpeg",
+      "video_url": "",
+      "duration": 240,
+      "model": "v3.5",
+      "created_at": "2026-07-16T21:54:04.294Z"
+    },
+    {
+      "id": "8691c0ab-926d-4444-9265-d89e9ba3f5e0",
+      "title": "森川のゆらぎ",
+      "prompt": "リラックスできるアンビエント、森と小川の音",
+      "tags": "Ambient with slow-evolving pads, soft forest field-recording textures, and a gentle brook bed; verse-like sections dissolve into longer swells, then a sparse middle break opens for filtered air and distant chimes before the final return. Breath-like synth layers and subtle stereo ripples carry the motion, with a close, intimate mix that feels calm, wide, and earthy.",
+      "lyrics": "[Instrumental]",
+      "audio_url": "https://cdn1.suno.ai/8691c0ab-926d-4444-9265-d89e9ba3f5e0.mp3",
+      "image_url": "https://cdn2.suno.ai/image_large_8691c0ab-926d-4444-9265-d89e9ba3f5e0.jpeg",
+      "video_url": "",
+      "duration": 121.96,
+      "model": "v3.5",
+      "created_at": "2026-07-16T21:54:04.294Z"
+    },
     {
       "id": "3294b2ac-7349-411d-b328-ec41ffb63a3b",
       "title": "真夜中の曲線",

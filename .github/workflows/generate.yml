@@ -1,0 +1,59 @@
+name: Generate Music
+
+# 24時間、定期的に自動で音楽を生成する
+on:
+  schedule:
+    # UTC基準。3時間ごとに実行（1日8回）。頻度を変えたい場合はここを調整。
+    # 例: 毎時なら "0 * * * *"、6時間ごとなら "0 */6 * * *"
+    - cron: "0 */3 * * *"
+  workflow_dispatch:
+    # 手動実行も可能。テーマを指定して試せる。
+    inputs:
+      prompt:
+        description: "生成テーマ（空ならランダム）"
+        required: false
+        default: ""
+      instrumental:
+        description: "インスト曲にする (true/false)"
+        required: false
+        default: "false"
+
+# tracks.json をコミットするための書き込み権限
+permissions:
+  contents: write
+
+# 同時実行を防ぐ（生成が重ならないように）
+concurrency:
+  group: generate-music
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Generate a song
+        env:
+          SUNO_COOKIE: ${{ secrets.SUNO_COOKIE }}
+          SUNO_PROMPT: ${{ github.event.inputs.prompt }}
+          MAKE_INSTRUMENTAL: ${{ github.event.inputs.instrumental }}
+        run: node scripts/generate.mjs
+
+      - name: Commit new tracks
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain data/tracks.json)" ]; then
+            git add data/tracks.json
+            git commit -m "🎵 自動生成: 新しい曲を追加 ($(date -u '+%Y-%m-%d %H:%M UTC'))"
+            git push
+          else
+            echo "新しい曲はありませんでした。"
+          fi

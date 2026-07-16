@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auto Music Studio — 24時間自動生成ラジオ</title>
+  <meta name="description" content="Suno AI と連携し、24時間自動で音楽を生成し続けるオンラインラジオ。" />
+  <style>
+    :root {
+      --bg: #0b0d17;
+      --bg-soft: #151827;
+      --card: #1b1f30;
+      --card-hover: #232840;
+      --text: #e8eaf2;
+      --text-dim: #9aa0b5;
+      --accent: #7c5cff;
+      --accent-2: #ff5c9d;
+      --border: #2a2f45;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+      background: radial-gradient(1200px 600px at 50% -200px, #1c1140 0%, var(--bg) 60%);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 120px;
+    }
+    header {
+      text-align: center;
+      padding: 48px 20px 24px;
+    }
+    .logo {
+      display: inline-flex; align-items: center; gap: 12px;
+      font-size: 28px; font-weight: 800; letter-spacing: -0.02em;
+    }
+    .logo .dot {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 0 20px var(--accent);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(.8)} }
+    .tagline { color: var(--text-dim); margin-top: 10px; font-size: 15px; }
+    .stats {
+      display: flex; gap: 24px; justify-content: center; margin-top: 20px;
+      color: var(--text-dim); font-size: 14px; flex-wrap: wrap;
+    }
+    .stats b { color: var(--text); }
+    .live {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,92,157,.12); color: var(--accent-2);
+      padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 700;
+    }
+    .live .blink { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-2); animation: pulse 1.2s infinite; }
+
+    .container { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 18px; margin-top: 32px;
+    }
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; overflow: hidden; cursor: pointer;
+      transition: transform .15s ease, background .15s ease, box-shadow .15s ease;
+    }
+    .card:hover { transform: translateY(-4px); background: var(--card-hover); box-shadow: 0 12px 32px rgba(0,0,0,.4); }
+    .card.active { outline: 2px solid var(--accent); }
+    .cover {
+      aspect-ratio: 1/1; width: 100%; object-fit: cover; display: block;
+      background: linear-gradient(135deg, #2a2f45, #3a2a55);
+    }
+    .card-body { padding: 12px 14px 14px; }
+    .card-title {
+      font-weight: 700; font-size: 15px; line-height: 1.3;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .card-sub { color: var(--text-dim); font-size: 12px; margin-top: 4px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .card-meta { color: var(--text-dim); font-size: 11px; margin-top: 8px; display:flex; gap:8px; }
+
+    .empty {
+      text-align: center; padding: 80px 20px; color: var(--text-dim);
+    }
+    .empty h2 { color: var(--text); margin-bottom: 12px; font-size: 20px; }
+    .empty code { background: var(--bg-soft); padding: 2px 8px; border-radius: 6px; color: var(--accent); }
+
+    /* プレイヤーバー */
+    .player {
+      position: fixed; left: 0; right: 0; bottom: 0;
+      background: rgba(21,24,39,.96); backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      padding: 12px 20px; display: flex; align-items: center; gap: 16px;
+      transform: translateY(120%); transition: transform .3s ease; z-index: 50;
+    }
+    .player.show { transform: translateY(0); }
+    .player img { width: 52px; height: 52px; border-radius: 8px; object-fit: cover; }
+    .player-info { min-width: 0; flex: 0 1 220px; }
+    .player-title { font-weight: 700; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .player-sub { color: var(--text-dim); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    audio { flex: 1; height: 40px; min-width: 120px; }
+    .player-actions { display: flex; gap: 8px; }
+    .btn {
+      background: var(--bg-soft); color: var(--text); border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px 12px; font-size: 13px; cursor: pointer;
+    }
+    .btn:hover { background: var(--card-hover); }
+    .btn.accent { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border: none; }
+
+    footer { text-align: center; color: var(--text-dim); font-size: 13px; padding: 40px 20px; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    @media (max-width: 640px) {
+      .player-info { display: none; }
+      audio { flex: 1; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo"><span class="dot"></span>Auto Music Studio</div>
+    <div class="tagline">Suno AI が 24 時間、自動で音楽を生成し続けるラジオ</div>
+    <div class="stats">
+      <span class="live"><span class="blink"></span>AUTO GENERATING</span>
+      <span>楽曲数 <b id="count">–</b></span>
+      <span>最終更新 <b id="updated">–</b></span>
+    </div>
+  </header>
+
+  <div class="container">
+    <div id="app"></div>
+  </div>
+
+  <div class="player" id="player">
+    <img id="p-cover" alt="" />
+    <div class="player-info">
+      <div class="player-title" id="p-title">–</div>
+      <div class="player-sub" id="p-sub">–</div>
+    </div>
+    <audio id="audio" controls autoplay></audio>
+    <div class="player-actions">
+      <button class="btn" id="p-shuffle" title="シャッフル再生">🔀</button>
+      <a class="btn accent" id="p-download" download>⬇ 保存</a>
+    </div>
+  </div>
+
+  <footer>
+    Powered by <a href="https://suno.com" target="_blank" rel="noopener">Suno AI</a> ·
+    自動生成は GitHub Actions で稼働中 ·
+    <span id="repo-link"></span>
+  </footer>
+
+  <script>
+    const state = { tracks: [], index: -1, shuffle: false };
+    const $ = (id) => document.getElementById(id);
+
+    function fmtDate(s) {
+      if (!s) return "–";
+      const d = new Date(s);
+      if (isNaN(d)) return "–";
+      return d.toLocaleString("ja-JP", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
+    }
+
+    function render() {
+      const app = $("app");
+      if (!state.tracks.length) {
+        app.innerHTML = `
+          <div class="empty">
+            <h2>まだ曲がありません 🎵</h2>
+            <p>初回の自動生成が実行されると、ここに曲が並びます。</p>
+            <p style="margin-top:12px">GitHub の Secrets に <code>SUNO_COOKIE</code> を設定し、<br>
+            Actions の「Generate Music」を実行してください。</p>
+          </div>`;
+        return;
+      }
+      const cards = state.tracks.map((t, i) => `
+        <div class="card ${i === state.index ? "active" : ""}" data-i="${i}">
+          <img class="cover" loading="lazy" src="${t.image_url || ""}" alt="${escapeHtml(t.title)}"
+               onerror="this.style.opacity=.4;this.removeAttribute('src')" />
+          <div class="card-body">
+            <div class="card-title">${escapeHtml(t.title)}</div>
+            <div class="card-sub">${escapeHtml(t.tags || t.prompt || "")}</div>
+            <div class="card-meta"><span>▶ 再生</span><span>${fmtDate(t.created_at)}</span></div>
+          </div>
+        </div>`).join("");
+      app.innerHTML = `<div class="grid">${cards}</div>`;
+      app.querySelectorAll(".card").forEach((el) => {
+        el.addEventListener("click", () => play(Number(el.dataset.i)));
+      });
+    }
+
+    function escapeHtml(s) {
+      return String(s || "").replace(/[&<>"']/g, (c) =>
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
+
+    function play(i) {
+      if (i < 0 || i >= state.tracks.length) return;
+      state.index = i;
+      const t = state.tracks[i];
+      $("audio").src = t.audio_url;
+      $("p-cover").src = t.image_url || "";
+      $("p-title").textContent = t.title;
+      $("p-sub").textContent = t.tags || t.prompt || "";
+      const dl = $("p-download");
+      dl.href = t.audio_url;
+      dl.setAttribute("download", (t.title || "track") + ".mp3");
+      $("player").classList.add("show");
+      render();
+      document.querySelector(".card.active")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function next() {
+      if (!state.tracks.length) return;
+      if (state.shuffle) {
+        play(Math.floor(Math.random() * state.tracks.length));
+      } else {
+        play((state.index + 1) % state.tracks.length);
+      }
+    }
+
+    $("audio").addEventListener("ended", next);
+    $("p-shuffle").addEventListener("click", () => {
+      state.shuffle = !state.shuffle;
+      $("p-shuffle").style.opacity = state.shuffle ? 1 : 0.5;
+    });
+    $("p-shuffle").style.opacity = 0.5;
+
+    async function load() {
+      try {
+        const res = await fetch("data/tracks.json?_=" + Date.now());
+        const db = await res.json();
+        state.tracks = Array.isArray(db.tracks) ? db.tracks : [];
+        $("count").textContent = state.tracks.length;
+        $("updated").textContent = fmtDate(db.updated_at);
+      } catch (e) {
+        state.tracks = [];
+      }
+      render();
+    }
+
+    // リポジトリリンク（GitHub Pages 上ならホスト名から推定）
+    (function () {
+      const host = location.hostname; // e.g. user.github.io
+      const parts = location.pathname.split("/").filter(Boolean);
+      if (host.endsWith("github.io") && parts.length) {
+        const user = host.split(".")[0];
+        const repo = parts[0];
+        $("repo-link").innerHTML = `<a href="https://github.com/${user}/${repo}" target="_blank" rel="noopener">ソースコード</a>`;
+      }
+    })();
+
+    load();
+    // 5分ごとに新しい曲を取り込む
+    setInterval(load, 5 * 60 * 1000);
+  </script>
+</body>
+</html>

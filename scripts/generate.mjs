@@ -22,8 +22,13 @@ const ROOT = path.resolve(__dirname, "..");
 const TRACKS_FILE = path.join(ROOT, "data", "tracks.json");
 
 // Suno / Clerk のエンドポイント。仕様変更で動かなくなった場合はここを更新する。
-const CLERK_BASE = "https://clerk.suno.com";
-const STUDIO_BASE = "https://studio-api.prod.suno.com";
+// Suno は Clerk のフロントエンド API ドメインを移行しており、現在は auth.suno.com。
+// 旧 clerk.suno.com も自動でフォールバックとして試す。
+// 環境変数 CLERK_BASE で明示的に上書きも可能。
+const CLERK_BASES = process.env.CLERK_BASE
+  ? [process.env.CLERK_BASE.replace(/\/$/, "")]
+  : ["https://auth.suno.com", "https://clerk.suno.com"];
+const STUDIO_BASE = process.env.STUDIO_BASE || "https://studio-api.prod.suno.com";
 const CLERK_JS_VERSION = "5.35.1";
 const MODEL = process.env.SUNO_MODEL || "chirp-v3-5";
 
@@ -59,21 +64,15 @@ const COMMON_HEADERS = {
   Referer: "https://suno.com/",
 };
 
-// Clerk の Cookie から現在のセッションID→JWT を取得する
-async function getJwt() {
-  if (!SUNO_COOKIE) {
-    throw new Error(
-      "SUNO_COOKIE が設定されていません。GitHub Secrets に SUNO_COOKIE を登録してください。"
-    );
-  }
-
+// 1つの Clerk ドメインに対して セッションID→JWT を取得する試行
+async function getJwtFrom(base) {
   // 1) 現在のクライアント情報を取得してアクティブなセッションIDを得る
   const clientRes = await fetch(
-    `${CLERK_BASE}/v1/client?_clerk_js_version=${CLERK_JS_VERSION}`,
+    `${base}/v1/client?_clerk_js_version=${CLERK_JS_VERSION}`,
     { headers: { ...COMMON_HEADERS, Cookie: SUNO_COOKIE } }
   );
   if (!clientRes.ok) {
-    throw new Error(`Clerk client 取得に失敗: ${clientRes.status} ${await clientRes.text()}`);
+    throw new Error(`client 取得に失敗: ${clientRes.status} ${await clientRes.text()}`);
   }
   const clientData = await clientRes.json();
   const sid =
@@ -85,7 +84,7 @@ async function getJwt() {
 
   // 2) セッションIDから短命の JWT を取得する
   const tokenRes = await fetch(
-    `${CLERK_BASE}/v1/client/sessions/${sid}/tokens?_clerk_js_version=${CLERK_JS_VERSION}`,
+    `${base}/v1/client/sessions/${sid}/tokens?_clerk_js_version=${CLERK_JS_VERSION}`,
     { method: "POST", headers: { ...COMMON_HEADERS, Cookie: SUNO_COOKIE } }
   );
   if (!tokenRes.ok) {
@@ -95,6 +94,26 @@ async function getJwt() {
   const jwt = tokenData?.jwt;
   if (!jwt) throw new Error("JWT が空でした。");
   return jwt;
+}
+
+// Clerk の Cookie から JWT を取得する（複数ドメインを順に試す）
+async function getJwt() {
+  if (!SUNO_COOKIE) {
+    throw new Error(
+      "SUNO_COOKIE が設定されていません。GitHub Secrets に SUNO_COOKIE を登録してください。"
+    );
+  }
+  let lastErr;
+  for (const base of CLERK_BASES) {
+    try {
+      log(`認証を試行: ${base}`);
+      return await getJwtFrom(base);
+    } catch (e) {
+      lastErr = e;
+      log(`  → 失敗 (${base}): ${e.message}`);
+    }
+  }
+  throw new Error(`すべての認証ドメインで失敗しました。最後のエラー: ${lastErr?.message}`);
 }
 
 function authHeaders(jwt) {

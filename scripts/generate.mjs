@@ -32,8 +32,23 @@ const STUDIO_BASE = process.env.STUDIO_BASE || "https://studio-api.prod.suno.com
 const CLERK_JS_VERSION = "5.35.1";
 const MODEL = process.env.SUNO_MODEL || "chirp-v3-5";
 
-const SUNO_COOKIE = process.env.SUNO_COOKIE;
+// Cookie は貼り付け時に前後の空白・改行が入りがちなので除去する。
+const SUNO_COOKIE = (process.env.SUNO_COOKIE || "").replace(/[\r\n]+/g, "").trim();
 const MAKE_INSTRUMENTAL = String(process.env.MAKE_INSTRUMENTAL || "").toLowerCase() === "true";
+
+// Cookie ヘッダーは Latin-1(0-255) の文字しか送れない。伏せ字「•」(U+2022) など
+// 不正な文字が混入している場合は、原因が分かるように早期に知らせる。
+function validateCookie(cookie) {
+  const bad = [...cookie].find((ch) => ch.codePointAt(0) > 255);
+  if (bad) {
+    const code = bad.codePointAt(0);
+    throw new Error(
+      `SUNO_COOKIE に送信できない文字 "${bad}" (U+${code.toString(16).toUpperCase()}) が` +
+        `含まれています。コピー時に伏せ字(•)などが混入した可能性があります。` +
+        `Secret を正しい値で登録し直してください。`
+    );
+  }
+}
 
 // プロンプト未指定のときに使うテーマ候補（24時間バリエーションを出すため）
 const RANDOM_THEMES = [
@@ -103,6 +118,7 @@ async function getJwt() {
       "SUNO_COOKIE が設定されていません。GitHub Secrets に SUNO_COOKIE を登録してください。"
     );
   }
+  validateCookie(SUNO_COOKIE);
   let lastErr;
   for (const base of CLERK_BASES) {
     try {

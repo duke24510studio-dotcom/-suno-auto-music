@@ -1,4 +1,31 @@
 {
-  "updated_at": null,
-  "tracks": []
+  "updated_at": "2026-07-16T19:23:16.221Z",
+  "tracks": [
+    {
+      "id": "3294b2ac-7349-411d-b328-ec41ffb63a3b",
+      "title": "真夜中の曲線",
+      "prompt": "ファンキーなジャズフュージョン、都会の夜景",
+      "tags": "Funky jazz fusion with elastic syncopated bass, crisp rimshots, and greasy electric piano comping; verse section rides a walking groove with guitar stabs and muted horn riffs, pre-chorus opens into suspended chords and snare pickups, chorus hits with bright unison horns and octave bass climbs. Short sax fills and reversed cymbal swells bridge phrases, with vinyl crackle and finger snaps as ear candy. Wide, glossy, late-night club mix",
+      "lyrics": "[Instrumental]",
+      "audio_url": "https://cdn1.suno.ai/3294b2ac-7349-411d-b328-ec41ffb63a3b.mp3",
+      "image_url": "https://cdn2.suno.ai/image_large_3294b2ac-7349-411d-b328-ec41ffb63a3b.jpeg",
+      "video_url": "",
+      "duration": 240,
+      "model": "v3.5",
+      "created_at": "2026-07-16T19:21:44.134Z"
+    },
+    {
+      "id": "348dc14b-1869-41f9-8cc8-78bda2e9c8da",
+      "title": "真夜中の曲線",
+      "prompt": "ファンキーなジャズフュージョン、都会の夜景",
+      "tags": "Funky jazz fusion with elastic syncopated bass, crisp rimshots, and greasy electric piano comping; verse section rides a walking groove with guitar stabs and muted horn riffs, pre-chorus opens into suspended chords and snare pickups, chorus hits with bright unison horns and octave bass climbs. Short sax fills and reversed cymbal swells bridge phrases, with vinyl crackle and finger snaps as ear candy. Wide, glossy, late-night club mix",
+      "lyrics": "[Instrumental]",
+      "audio_url": "https://cdn1.suno.ai/348dc14b-1869-41f9-8cc8-78bda2e9c8da.mp3",
+      "image_url": "https://cdn2.suno.ai/image_large_348dc14b-1869-41f9-8cc8-78bda2e9c8da.jpeg",
+      "video_url": "",
+      "duration": 123.08,
+      "model": "v3.5",
+      "created_at": "2026-07-16T19:21:44.134Z"
+    }
+  ]
 }

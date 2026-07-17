@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>曲を追加 — Auto Music Studio</title>
+  <style>
+    :root {
+      --bg: #0b0d17; --card: #1b1f30; --text: #e8eaf2; --dim: #9aa0b5;
+      --accent: #7c5cff; --accent2: #ff5c9d; --border: #2a2f45;
+      --ok: #35c26b; --err: #ff5c6a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans JP", sans-serif;
+      background: radial-gradient(1000px 500px at 50% -200px, #1c1140 0%, var(--bg) 60%);
+      color: var(--text); min-height: 100vh; padding: 24px 16px 80px;
+    }
+    .wrap { max-width: 560px; margin: 0 auto; }
+    h1 { font-size: 22px; margin-bottom: 4px; }
+    .sub { color: var(--dim); font-size: 14px; margin-bottom: 20px; }
+    a { color: var(--accent); }
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 20px; margin-bottom: 16px;
+    }
+    label { display: block; font-size: 13px; font-weight: 700; margin: 14px 0 6px; }
+    label:first-child { margin-top: 0; }
+    .hint { font-weight: 400; color: var(--dim); font-size: 12px; }
+    input[type=text], input[type=password] {
+      width: 100%; padding: 11px 12px; border-radius: 10px;
+      border: 1px solid var(--border); background: #0f1220; color: var(--text);
+      font-size: 15px;
+    }
+    input:focus { outline: 2px solid var(--accent); border-color: transparent; }
+    .row { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+    .row input[type=checkbox] { width: 18px; height: 18px; }
+    .row label { margin: 0; }
+    button {
+      width: 100%; margin-top: 18px; padding: 13px; border: none; border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff; font-size: 16px; font-weight: 800; cursor: pointer;
+    }
+    button:disabled { opacity: .5; cursor: default; }
+    .msg { margin-top: 14px; padding: 12px; border-radius: 10px; font-size: 14px; display: none; }
+    .msg.ok { display: block; background: rgba(53,194,107,.12); color: var(--ok); }
+    .msg.err { display: block; background: rgba(255,92,106,.12); color: var(--err); white-space: pre-wrap; }
+    details { margin-top: 10px; font-size: 13px; color: var(--dim); }
+    details summary { cursor: pointer; color: var(--accent); }
+    details ol { margin: 10px 0 0 18px; line-height: 1.8; }
+    code { background: #0f1220; padding: 1px 6px; border-radius: 5px; color: var(--accent2); }
+    .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .back { font-size: 14px; }
+    .saved-key { color: var(--dim); font-size: 12px; margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <a class="back" href="./">← サイトに戻る</a>
+    </div>
+    <h1>🎵 曲を追加</h1>
+    <div class="sub">Suno で作った曲のリンクを貼るだけで、サイトに追加できます。</div>
+
+    <div class="card">
+      <label>① GitHub トークン <span class="hint">（初回だけ。ブラウザに保存され、次回から不要）</span></label>
+      <input type="password" id="token" placeholder="ghp_ または github_pat_ で始まる文字列" autocomplete="off" />
+      <div class="saved-key" id="tokenSaved"></div>
+      <details>
+        <summary>トークンの取り方（初回のみ）</summary>
+        <ol>
+          <li><a href="https://github.com/settings/tokens/new?scopes=repo&description=suno-music-add" target="_blank" rel="noopener">このリンク</a>を開く（GitHubのトークン作成画面）</li>
+          <li>「Expiration」を <code>No expiration</code> などに設定</li>
+          <li>下にスクロールして緑の <code>Generate token</code> を押す</li>
+          <li>表示された <code>ghp_...</code> の文字列をコピーして、上の欄に貼る</li>
+        </ol>
+      </details>
+    </div>
+
+    <div class="card">
+      <label>② Suno の曲リンク または 曲ID</label>
+      <input type="text" id="song" placeholder="https://suno.com/song/xxxxxxxx-xxxx-..." />
+      <div class="hint" style="margin-top:6px">Sunoで曲を開き「Share」やアドレスバーのURLを貼り付け。</div>
+
+      <label>③ 曲のタイトル</label>
+      <input type="text" id="title" placeholder="例：真夏の海辺のうた" />
+
+      <label>④ ジャンル・タグ <span class="hint">（任意）</span></label>
+      <input type="text" id="tags" placeholder="例：シティポップ, 爽やか" />
+
+      <div class="row">
+        <input type="checkbox" id="instrumental" />
+        <label for="instrumental">インスト曲（歌なし）</label>
+      </div>
+
+      <button id="save">サイトに追加する</button>
+      <div class="msg" id="msg"></div>
+    </div>
+  </div>
+
+  <script>
+    const OWNER = "duke24510studio-dotcom";
+    const REPO = "-suno-auto-music";
+    const BRANCH = "main";
+    const FILE = "data/tracks.json";
+    const $ = (id) => document.getElementById(id);
+
+    // トークンをローカルに記憶
+    const savedToken = localStorage.getItem("gh_token");
+    if (savedToken) {
+      $("token").value = savedToken;
+      $("tokenSaved").textContent = "✓ 保存済みのトークンを使用します";
+    }
+
+    function showMsg(type, text) {
+      const el = $("msg");
+      el.className = "msg " + type;
+      el.textContent = text;
+    }
+
+    // 入力から Suno の曲ID（UUID）を取り出す
+    function extractId(input) {
+      const m = String(input).match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+      return m ? m[0] : null;
+    }
+
+    // UTF-8 対応の base64 エンコード（日本語タイトル対策）
+    function toBase64(str) {
+      return btoa(unescape(encodeURIComponent(str)));
+    }
+    function fromBase64(b64) {
+      return decodeURIComponent(escape(atob(b64.replace(/\n/g, ""))));
+    }
+
+    async function ghGet() {
+      const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE}?ref=${BRANCH}`;
+      const res = await fetch(url, {
+        headers: { Authorization: "Bearer " + $("token").value.trim(), Accept: "application/vnd.github+json" },
+      });
+      if (res.status === 401) throw new Error("トークンが無効です。GitHubトークンを確認してください。");
+      if (!res.ok) throw new Error("tracks.json の取得に失敗: " + res.status + " " + (await res.text()));
+      return res.json();
+    }
+
+    async function ghPut(contentObj, sha) {
+      const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE}`;
+      const body = {
+        message: "🎵 曲を追加: " + (contentObj.tracks[0]?.title || ""),
+        content: toBase64(JSON.stringify(contentObj, null, 2) + "\n"),
+        sha,
+        branch: BRANCH,
+      };
+      const res = await fetch(url, {
+        method: "PUT",
+        headers: { Authorization: "Bearer " + $("token").value.trim(), Accept: "application/vnd.github+json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error("保存に失敗: " + res.status + " " + (await res.text()));
+      return res.json();
+    }
+
+    $("save").addEventListener("click", async () => {
+      const token = $("token").value.trim();
+      const song = $("song").value.trim();
+      const title = $("title").value.trim();
+      const tags = $("tags").value.trim();
+      const instrumental = $("instrumental").checked;
+
+      if (!token) return showMsg("err", "GitHubトークンを入力してください。");
+      if (!song) return showMsg("err", "Sunoの曲リンクを入力してください。");
+      if (!title) return showMsg("err", "曲のタイトルを入力してください。");
+
+      const id = extractId(song);
+      if (!id) return showMsg("err", "曲リンクからIDを読み取れませんでした。\nSunoの曲URL（suno.com/song/... 形式）を貼ってください。");
+
+      localStorage.setItem("gh_token", token);
+      $("save").disabled = true;
+      showMsg("ok", "保存中…");
+
+      try {
+        const file = await ghGet();
+        const db = JSON.parse(fromBase64(file.content));
+        if (!Array.isArray(db.tracks)) db.tracks = [];
+
+        if (db.tracks.some((t) => t.id === id)) {
+          $("save").disabled = false;
+          return showMsg("err", "この曲はすでに追加されています。");
+        }
+
+        const track = {
+          id,
+          title,
+          prompt: tags,
+          tags,
+          lyrics: instrumental ? "[Instrumental]" : "",
+          audio_url: `https://cdn1.suno.ai/${id}.mp3`,
+          image_url: `https://cdn2.suno.ai/image_large_${id}.jpeg`,
+          video_url: "",
+          duration: null,
+          model: "manual",
+          created_at: new Date().toISOString(),
+        };
+        db.tracks.unshift(track);
+        db.updated_at = new Date().toISOString();
+
+        await ghPut(db, file.sha);
+
+        showMsg("ok", "✅ 追加しました！ 1〜2分でサイトに反映されます。\n続けて別の曲も追加できます。");
+        $("song").value = "";
+        $("title").value = "";
+        $("tags").value = "";
+        $("instrumental").checked = false;
+        $("tokenSaved").textContent = "✓ 保存済みのトークンを使用します";
+      } catch (e) {
+        showMsg("err", "エラー: " + e.message);
+      } finally {
+        $("save").disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,16 +1,10 @@
 name: Deploy to GitHub Pages
 
 # サイト（index.html 等）を GitHub Pages に公開する。
+# 「曲を追加」ページから tracks.json が更新（push）されるたびに再デプロイされる。
 on:
-  # 通常の push（手動編集やこのファイルの更新）で再デプロイ
   push:
     branches: [main]
-  # 「Generate Music」が完了したら再デプロイする。
-  # ※Actions(bot) の自動コミットは push イベントを発火しないため、
-  #   生成ワークフローの完了を合図にして新曲をサイトへ反映する。
-  workflow_run:
-    workflows: ["Generate Music"]
-    types: [completed]
   workflow_dispatch:
 
 permissions:

@@ -17,17 +17,18 @@
 
   <style>
     :root {
-      --bg: #0b0910;
-      --bg-2: #120f18;
-      --panel: #171320;
-      --panel-2: #1e1928;
-      --line: #2a2436;
-      --text: #ece7e1;
-      --dim: #9b8fa6;
-      --dim-2: #6f6579;
-      --gold: #e6b17e;
-      --rose: #c98a8a;
-      --violet: #9d8bd6;
+      /* ── Modal Soul パレット（朱 × 夜空の藍 × 金） ── */
+      --bg: #170a07;      /* 深いエンバー */
+      --bg-2: #1f0d09;
+      --panel: #26120d;
+      --panel-2: #301711;
+      --line: #43221a;    /* 暖色のボーダー */
+      --text: #f4e6d5;    /* クリーム */
+      --dim: #cc9c85;     /* ダスティタン */
+      --dim-2: #91614f;   /* くすんだ錆色 */
+      --gold: #ecc79a;    /* 筆記体の金 */
+      --rose: #d24e26;    /* ヴァーミリオン（朱） */
+      --violet: #37448f;  /* 夜空の藍 */
       --maxw: 1120px;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -79,13 +80,16 @@
       display: flex; flex-direction: column; justify-content: center;
       padding: 120px 0 80px;
       overflow: hidden;
+      /* 夜空の藍 → 朱 → エンバー（アルバムの空から地へ） */
+      background: linear-gradient(178deg,
+        #202a63 0%, #2f2a5a 9%, #7a2c17 26%, #4a1a10 42%, var(--bg) 64%);
     }
     .hero-glow {
       position: absolute; z-index: 0; pointer-events: none;
-      width: 900px; height: 900px; border-radius: 50%;
-      top: -320px; left: 50%; transform: translateX(-50%);
-      background: radial-gradient(circle, rgba(157,139,214,.22), rgba(201,138,138,.10) 40%, transparent 66%);
-      filter: blur(20px);
+      width: 1000px; height: 1000px; border-radius: 50%;
+      top: -300px; left: 50%; transform: translateX(-50%);
+      background: radial-gradient(circle, rgba(210,78,38,.30), rgba(55,68,143,.14) 42%, transparent 68%);
+      filter: blur(24px);
     }
     .moon {
       position: absolute; top: 16%; right: 12%; z-index: 0;
@@ -136,7 +140,7 @@
 
     /* ===== About ===== */
     #about { background:
-      radial-gradient(700px 400px at 85% 0%, rgba(157,139,214,.10), transparent 60%),
+      radial-gradient(700px 400px at 85% 0%, rgba(55,68,143,.16), transparent 60%),
       var(--bg-2); }
     .about-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 48px; align-items: center; }
     @media (max-width: 780px){ .about-grid{ grid-template-columns: 1fr; gap: 32px; } }
@@ -179,7 +183,7 @@
     }
     @media (hover: none) and (pointer: coarse) { .swipe-hint { display: block; } }
     .cover-wrap { position: relative; border-radius: 16px; overflow: hidden; aspect-ratio: 1;
-      background: linear-gradient(135deg, #241a2e, #2f2140); border: 1px solid var(--line);
+      background: linear-gradient(135deg, #3a1712, #6a2415); border: 1px solid var(--line);
       box-shadow: 0 18px 40px rgba(0,0,0,.45); }
     .cover-wrap img { width: 100%; height: 100%; object-fit: cover; display: block;
       transition: transform .5s cubic-bezier(.2,.7,.2,1), filter .3s; filter: saturate(.92); }
@@ -214,7 +218,7 @@
 
     /* ===== Listen / connect ===== */
     #listen { background:
-      radial-gradient(600px 360px at 15% 100%, rgba(201,138,138,.10), transparent 60%),
+      radial-gradient(600px 360px at 15% 100%, rgba(210,78,38,.16), transparent 60%),
       var(--bg-2); }
     .links { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 16px; }
     .link-card { display: flex; align-items: center; gap: 14px; padding: 18px 20px;

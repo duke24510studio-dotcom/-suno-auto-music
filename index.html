@@ -3,259 +3,427 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Auto Music Studio — 24時間自動生成ラジオ</title>
-  <meta name="description" content="Suno AI と連携し、24時間自動で音楽を生成し続けるオンラインラジオ。" />
+  <title>Enotoc Records — Tokyo Lo-fi Label</title>
+  <meta name="description" content="Enotoc Records — 東京発のインディペンデント・レーベル。真夜中に寄り添う、哀愁漂うジャジーな Lo-fi HipHop。" />
+
+  <!-- OGP（YouTubeやSNSでリンクを貼ったときのプレビュー用） -->
+  <meta property="og:title" content="Enotoc Records — Tokyo Lo-fi Label" />
+  <meta property="og:description" content="Melancholic, jazzy lo-fi beats & nostalgic R&B for sleepless nights. 東京発のインディペンデント・レーベル。" />
+  <meta property="og:type" content="website" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,400&family=Space+Mono:wght@400;700&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&display=swap" rel="stylesheet" />
+
   <style>
     :root {
-      --bg: #0b0d17;
-      --bg-soft: #151827;
-      --card: #1b1f30;
-      --card-hover: #232840;
-      --text: #e8eaf2;
-      --text-dim: #9aa0b5;
-      --accent: #7c5cff;
-      --accent-2: #ff5c9d;
-      --border: #2a2f45;
+      --bg: #0b0910;
+      --bg-2: #120f18;
+      --panel: #171320;
+      --panel-2: #1e1928;
+      --line: #2a2436;
+      --text: #ece7e1;
+      --dim: #9b8fa6;
+      --dim-2: #6f6579;
+      --gold: #e6b17e;
+      --rose: #c98a8a;
+      --violet: #9d8bd6;
+      --maxw: 1120px;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
     body {
-      font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
-      background: radial-gradient(1200px 600px at 50% -200px, #1c1140 0%, var(--bg) 60%);
+      font-family: "Zen Kaku Gothic New", system-ui, sans-serif;
+      background: var(--bg);
       color: var(--text);
-      min-height: 100vh;
-      padding-bottom: 120px;
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
-    header {
-      text-align: center;
-      padding: 48px 20px 24px;
+    /* フィルムグレイン風のノイズ */
+    body::before {
+      content: "";
+      position: fixed; inset: 0; z-index: 1; pointer-events: none;
+      opacity: .05; mix-blend-mode: overlay;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     }
-    .logo {
-      display: inline-flex; align-items: center; gap: 12px;
-      font-size: 28px; font-weight: 800; letter-spacing: -0.02em;
-    }
-    .logo .dot {
-      width: 14px; height: 14px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      box-shadow: 0 0 20px var(--accent);
-      animation: pulse 2s ease-in-out infinite;
-    }
-    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(.8)} }
-    .tagline { color: var(--text-dim); margin-top: 10px; font-size: 15px; }
-    .stats {
-      display: flex; gap: 24px; justify-content: center; margin-top: 20px;
-      color: var(--text-dim); font-size: 14px; flex-wrap: wrap;
-    }
-    .stats b { color: var(--text); }
-    .addlink {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      color: #fff; padding: 5px 14px; border-radius: 999px;
-      font-size: 13px; font-weight: 700; text-decoration: none;
-    }
-    .addlink:hover { opacity: .9; text-decoration: none; }
+    a { color: inherit; text-decoration: none; }
+    .serif { font-family: "Fraunces", Georgia, serif; }
+    .mono { font-family: "Space Mono", monospace; }
+    .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; position: relative; z-index: 2; }
 
-    .container { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+    /* ===== Top nav ===== */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 40;
+      backdrop-filter: blur(14px);
+      background: linear-gradient(180deg, rgba(11,9,16,.85), rgba(11,9,16,.4));
+      border-bottom: 1px solid rgba(42,36,54,.6);
+    }
+    .nav-in { max-width: var(--maxw); margin: 0 auto; padding: 14px 24px;
+      display: flex; align-items: center; justify-content: space-between; }
+    .brand { display: flex; align-items: center; gap: 10px; font-family: "Fraunces", serif;
+      font-weight: 500; font-size: 18px; letter-spacing: .01em; }
+    .brand .mark {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, var(--gold), var(--rose) 60%, #6b3f6b);
+      box-shadow: 0 0 18px rgba(230,177,126,.45);
+    }
+    .nav-links { display: flex; gap: 26px; font-size: 13px; letter-spacing: .04em; color: var(--dim); }
+    .nav-links a { transition: color .2s; }
+    .nav-links a:hover { color: var(--text); }
+    @media (max-width: 640px) { .nav-links { display: none; } }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 18px; margin-top: 32px;
+    /* ===== Hero ===== */
+    header.hero {
+      position: relative; min-height: 100svh;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 120px 0 80px;
+      overflow: hidden;
     }
-    .card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 16px; overflow: hidden; cursor: pointer;
-      transition: transform .15s ease, background .15s ease, box-shadow .15s ease;
+    .hero-glow {
+      position: absolute; z-index: 0; pointer-events: none;
+      width: 900px; height: 900px; border-radius: 50%;
+      top: -320px; left: 50%; transform: translateX(-50%);
+      background: radial-gradient(circle, rgba(157,139,214,.22), rgba(201,138,138,.10) 40%, transparent 66%);
+      filter: blur(20px);
     }
-    .card:hover { transform: translateY(-4px); background: var(--card-hover); box-shadow: 0 12px 32px rgba(0,0,0,.4); }
-    .card.active { outline: 2px solid var(--accent); }
-    .cover {
-      aspect-ratio: 1/1; width: 100%; object-fit: cover; display: block;
-      background: linear-gradient(135deg, #2a2f45, #3a2a55);
+    .moon {
+      position: absolute; top: 16%; right: 12%; z-index: 0;
+      width: 130px; height: 130px; border-radius: 50%;
+      background: radial-gradient(circle at 38% 35%, #f3e2c8, #e6b17e 55%, #b07a54);
+      box-shadow: 0 0 80px rgba(230,177,126,.35), inset -14px -12px 30px rgba(80,40,60,.5);
+      animation: float 9s ease-in-out infinite;
     }
-    .card-body { padding: 12px 14px 14px; }
-    .card-title {
-      font-weight: 700; font-size: 15px; line-height: 1.3;
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-16px)} }
+    @media (max-width: 720px){ .moon{ width:86px;height:86px; top:12%; right:8%;} }
+
+    .eyebrow { font-family: "Space Mono", monospace; font-size: 12px; letter-spacing: .42em;
+      text-transform: uppercase; color: var(--gold); margin-bottom: 22px; }
+    .hero h1 {
+      font-family: "Fraunces", serif; font-weight: 300;
+      font-size: clamp(52px, 12vw, 132px); line-height: .95; letter-spacing: -.02em;
+      margin-bottom: 26px;
+    }
+    .hero h1 em { font-style: italic; color: var(--gold); }
+    .hero .lead { max-width: 540px; color: var(--dim); font-size: clamp(15px,2.4vw,18px);
+      font-weight: 300; }
+    .hero .lead .jp { display: block; margin-top: 14px; color: var(--dim-2); font-size: 14px; }
+    .hero-cta { display: flex; gap: 14px; margin-top: 40px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 9px;
+      padding: 13px 22px; border-radius: 999px; font-size: 14px; letter-spacing: .02em;
+      border: 1px solid var(--line); color: var(--text); transition: all .2s; cursor: pointer;
+      background: rgba(255,255,255,.02);
+    }
+    .btn:hover { border-color: var(--gold); color: var(--gold); }
+    .btn.primary {
+      background: linear-gradient(135deg, var(--gold), var(--rose)); color: #1a1014;
+      border: none; font-weight: 700;
+    }
+    .btn.primary:hover { color: #1a1014; opacity: .92; }
+    .scroll-hint { position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%);
+      font-family: "Space Mono", monospace; font-size: 11px; letter-spacing: .3em; color: var(--dim-2);
+      z-index: 2; animation: float 3s ease-in-out infinite; }
+
+    /* ===== Section shells ===== */
+    section { position: relative; padding: 96px 0; z-index: 2; }
+    .sec-head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 40px; }
+    .sec-head .no { font-family: "Space Mono", monospace; font-size: 12px; color: var(--gold);
+      letter-spacing: .2em; }
+    .sec-head h2 { font-family: "Fraunces", serif; font-weight: 400; font-size: clamp(28px,5vw,44px);
+      letter-spacing: -.01em; }
+    .sec-head .rule { flex: 1; height: 1px; background: linear-gradient(90deg, var(--line), transparent); }
+
+    /* ===== About ===== */
+    #about { background:
+      radial-gradient(700px 400px at 85% 0%, rgba(157,139,214,.10), transparent 60%),
+      var(--bg-2); }
+    .about-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 48px; align-items: center; }
+    @media (max-width: 780px){ .about-grid{ grid-template-columns: 1fr; gap: 32px; } }
+    .about p.big { font-family: "Fraunces", serif; font-weight: 300; font-size: clamp(20px,3vw,27px);
+      line-height: 1.5; }
+    .about p.big span { color: var(--gold); font-style: italic; }
+    .about .jp { color: var(--dim); margin-top: 22px; font-size: 15px; font-weight: 300; }
+    .about-card { border: 1px solid var(--line); border-radius: 18px; padding: 26px;
+      background: rgba(255,255,255,.02); }
+    .about-card .row { display: flex; justify-content: space-between; padding: 12px 0;
+      border-bottom: 1px dashed var(--line); font-size: 14px; }
+    .about-card .row:last-child { border: none; }
+    .about-card .k { color: var(--dim-2); font-family: "Space Mono", monospace; font-size: 12px; letter-spacing: .05em; }
+    .about-card .v { color: var(--text); }
+
+    /* ===== Discography ===== */
+    .disco { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 26px; }
+    .release { cursor: pointer; }
+    .cover-wrap { position: relative; border-radius: 14px; overflow: hidden; aspect-ratio: 1;
+      background: linear-gradient(135deg, #241a2e, #2f2140); border: 1px solid var(--line); }
+    .cover-wrap img { width: 100%; height: 100%; object-fit: cover; display: block;
+      transition: transform .5s cubic-bezier(.2,.7,.2,1), filter .3s; filter: saturate(.92); }
+    .release:hover img { transform: scale(1.06); filter: saturate(1.05); }
+    .cover-wrap::after { content: ""; position: absolute; inset: 0;
+      background: linear-gradient(180deg, transparent 45%, rgba(8,6,12,.7)); opacity: .5; transition: opacity .3s; }
+    .release:hover .cover-wrap::after { opacity: .85; }
+    .play-badge {
+      position: absolute; left: 12px; bottom: 12px; z-index: 3;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: rgba(230,177,126,.95); color: #1a1014;
+      display: flex; align-items: center; justify-content: center;
+      transform: translateY(8px); opacity: 0; transition: all .3s; font-size: 15px;
+      box-shadow: 0 8px 22px rgba(0,0,0,.4);
+    }
+    .release:hover .play-badge { transform: translateY(0); opacity: 1; }
+    .release.playing .play-badge { transform: translateY(0); opacity: 1; animation: none; }
+    .release.playing .cover-wrap { outline: 2px solid var(--gold); outline-offset: 2px; }
+    .cat { position: absolute; top: 12px; left: 12px; z-index: 3;
+      font-family: "Space Mono", monospace; font-size: 11px; letter-spacing: .08em;
+      color: var(--text); background: rgba(11,9,16,.6); padding: 3px 8px; border-radius: 6px;
+      backdrop-filter: blur(4px); }
+    .r-meta { padding: 14px 4px 0; }
+    .r-title { font-family: "Fraunces", serif; font-size: 18px; font-weight: 500; line-height: 1.25;
+      overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; }
+    .r-sub { color: var(--dim); font-size: 12.5px; margin-top: 4px;
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    }
-    .card-sub { color: var(--text-dim); font-size: 12px; margin-top: 4px;
-      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .card-meta { color: var(--text-dim); font-size: 11px; margin-top: 8px; display:flex; gap:8px; }
+      font-family: "Space Mono", monospace; letter-spacing: .02em; }
 
-    .empty {
-      text-align: center; padding: 80px 20px; color: var(--text-dim);
-    }
-    .empty h2 { color: var(--text); margin-bottom: 12px; font-size: 20px; }
-    .empty code { background: var(--bg-soft); padding: 2px 8px; border-radius: 6px; color: var(--accent); }
+    .empty { text-align: center; padding: 60px 20px; color: var(--dim); border: 1px dashed var(--line); border-radius: 16px; }
+    .empty .serif { font-size: 22px; color: var(--text); margin-bottom: 10px; display: block; }
 
-    /* プレイヤーバー */
+    /* ===== Listen / connect ===== */
+    #listen { background:
+      radial-gradient(600px 360px at 15% 100%, rgba(201,138,138,.10), transparent 60%),
+      var(--bg-2); }
+    .links { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 16px; }
+    .link-card { display: flex; align-items: center; gap: 14px; padding: 18px 20px;
+      border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.02);
+      transition: all .2s; }
+    .link-card:hover { border-color: var(--gold); transform: translateY(-3px); background: rgba(230,177,126,.05); }
+    .link-card .ico { font-size: 22px; }
+    .link-card .t { font-family: "Fraunces", serif; font-size: 17px; }
+    .link-card .s { color: var(--dim-2); font-size: 12px; font-family: "Space Mono", monospace; }
+
+    /* ===== Player bar ===== */
     .player {
-      position: fixed; left: 0; right: 0; bottom: 0;
-      background: rgba(21,24,39,.96); backdrop-filter: blur(12px);
-      border-top: 1px solid var(--border);
-      padding: 12px 20px; display: flex; align-items: center; gap: 16px;
-      transform: translateY(120%); transition: transform .3s ease; z-index: 50;
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+      background: rgba(18,15,24,.94); backdrop-filter: blur(16px);
+      border-top: 1px solid var(--line);
+      transform: translateY(120%); transition: transform .35s cubic-bezier(.2,.7,.2,1);
     }
     .player.show { transform: translateY(0); }
-    .player img { width: 52px; height: 52px; border-radius: 8px; object-fit: cover; }
-    .player-info { min-width: 0; flex: 0 1 220px; }
-    .player-title { font-weight: 700; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .player-sub { color: var(--text-dim); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    audio { flex: 1; height: 40px; min-width: 120px; }
-    .player-actions { display: flex; gap: 8px; }
-    .btn {
-      background: var(--bg-soft); color: var(--text); border: 1px solid var(--border);
-      border-radius: 8px; padding: 8px 12px; font-size: 13px; cursor: pointer;
-    }
-    .btn:hover { background: var(--card-hover); }
-    .btn.accent { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border: none; }
+    .player-in { max-width: var(--maxw); margin: 0 auto; padding: 12px 24px;
+      display: flex; align-items: center; gap: 16px; }
+    .player img { width: 52px; height: 52px; border-radius: 8px; object-fit: cover; flex: none; }
+    .p-info { min-width: 0; width: 200px; flex: none; }
+    .p-title { font-family: "Fraunces", serif; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .p-sub { color: var(--dim); font-size: 11px; font-family: "Space Mono", monospace;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    audio { flex: 1; height: 40px; min-width: 100px; }
+    .p-actions { display: flex; gap: 8px; flex: none; }
+    .p-btn { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--line);
+      background: rgba(255,255,255,.03); color: var(--text); cursor: pointer; font-size: 15px; }
+    .p-btn:hover { border-color: var(--gold); color: var(--gold); }
+    @media (max-width: 680px){ .p-info{ display:none; } .player-in{ padding: 10px 14px; gap: 10px; } }
 
-    footer { text-align: center; color: var(--text-dim); font-size: 13px; padding: 40px 20px; }
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-
-    @media (max-width: 640px) {
-      .player-info { display: none; }
-      audio { flex: 1; }
-    }
+    /* ===== Footer ===== */
+    footer { padding: 60px 0 130px; border-top: 1px solid var(--line); text-align: center; z-index: 2; position: relative; }
+    footer .brand-lg { font-family: "Fraunces", serif; font-size: 26px; margin-bottom: 8px; }
+    footer .cc { color: var(--dim-2); font-size: 12px; font-family: "Space Mono", monospace; letter-spacing: .05em; }
+    footer .admin { display: inline-block; margin-top: 22px; font-size: 11px; color: var(--dim-2);
+      font-family: "Space Mono", monospace; opacity: .5; }
+    footer .admin:hover { opacity: 1; color: var(--gold); }
   </style>
 </head>
 <body>
-  <header>
-    <div class="logo"><span class="dot"></span>Auto Music Studio</div>
-    <div class="tagline">Suno AI で作った音楽を集めたオンラインプレイヤー</div>
-    <div class="stats">
-      <span>楽曲数 <b id="count">–</b></span>
-      <span>最終更新 <b id="updated">–</b></span>
-      <a class="addlink" href="add.html">＋ 曲を追加</a>
+  <nav>
+    <div class="nav-in">
+      <a class="brand" href="#top"><span class="mark"></span>Enotoc&nbsp;Records</a>
+      <div class="nav-links">
+        <a href="#works">Works</a>
+        <a href="#about">About</a>
+        <a href="#listen">Listen</a>
+      </div>
     </div>
+  </nav>
+
+  <header class="hero" id="top">
+    <div class="hero-glow"></div>
+    <div class="moon"></div>
+    <div class="wrap">
+      <div class="eyebrow">Tokyo · Independent Label</div>
+      <h1 class="serif">Enotoc<br /><em>Records</em></h1>
+      <p class="lead">
+        Melancholic, jazzy lo-fi beats & nostalgic R&B —<br />crafted for sleepless nights and deep focus.
+        <span class="jp">東京発のインディペンデント・レーベル。真夜中の静けさに寄り添う、哀愁漂うジャジーな Lo-fi HipHop。</span>
+      </p>
+      <div class="hero-cta">
+        <a href="#works" class="btn primary">▸ Listen to the discography</a>
+        <a href="#about" class="btn">About the label</a>
+      </div>
+    </div>
+    <div class="scroll-hint">scroll ↓</div>
   </header>
 
-  <div class="container">
-    <div id="app"></div>
-  </div>
+  <section id="works">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="no">01</span>
+        <h2 class="serif">Discography</h2>
+        <span class="rule"></span>
+        <span class="no" id="count">—</span>
+      </div>
+      <div id="disco" class="disco"></div>
+    </div>
+  </section>
 
-  <div class="player" id="player">
-    <img id="p-cover" alt="" />
-    <div class="player-info">
-      <div class="player-title" id="p-title">–</div>
-      <div class="player-sub" id="p-sub">–</div>
+  <section id="about">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="no">02</span>
+        <h2 class="serif">About</h2>
+        <span class="rule"></span>
+      </div>
+      <div class="about-grid about">
+        <div>
+          <p class="big">A Tokyo-based independent label crafting <span>melancholic, jazzy lo-fi</span> and nostalgic R&B for the quiet hours after midnight.</p>
+          <p class="jp">真夜中の静けさに寄り添う音を。眠れない夜、深い集中のために。ジャジーで哀愁ただよう Lo-fi HipHop を、東京から世界へ。Stay tuned for chill vibes. 🌌</p>
+        </div>
+        <div class="about-card">
+          <div class="row"><span class="k">LABEL</span><span class="v">Enotoc Records</span></div>
+          <div class="row"><span class="k">BASE</span><span class="v">Tokyo, Japan</span></div>
+          <div class="row"><span class="k">GENRE</span><span class="v">Lo-fi · Jazzy · R&B</span></div>
+          <div class="row"><span class="k">MOOD</span><span class="v">Melancholic / Nocturnal</span></div>
+          <div class="row"><span class="k">STATUS</span><span class="v">◍ Active</span></div>
+        </div>
+      </div>
     </div>
-    <audio id="audio" controls autoplay></audio>
-    <div class="player-actions">
-      <button class="btn" id="p-shuffle" title="シャッフル再生">🔀</button>
-      <a class="btn accent" id="p-download" download>⬇ 保存</a>
+  </section>
+
+  <section id="listen">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="no">03</span>
+        <h2 class="serif">Listen & Connect</h2>
+        <span class="rule"></span>
+      </div>
+      <div class="links" id="links">
+        <a class="link-card" href="#" target="_blank" rel="noopener" data-key="youtube">
+          <span class="ico">▶</span><span><span class="t">YouTube</span><br /><span class="s">watch & subscribe</span></span>
+        </a>
+        <a class="link-card" href="#works">
+          <span class="ico">🎧</span><span><span class="t">Full Player</span><br /><span class="s">play on this site</span></span>
+        </a>
+        <a class="link-card" href="#" target="_blank" rel="noopener" data-key="instagram">
+          <span class="ico">◎</span><span><span class="t">Instagram</span><br /><span class="s">@enotocrecords</span></span>
+        </a>
+      </div>
     </div>
-  </div>
+  </section>
 
   <footer>
-    Powered by <a href="https://suno.com" target="_blank" rel="noopener">Suno AI</a> ·
-    自動生成は GitHub Actions で稼働中 ·
-    <span id="repo-link"></span>
+    <div class="wrap">
+      <div class="brand-lg serif">Enotoc Records</div>
+      <div class="cc">© <span id="year"></span> Enotoc Records · Tokyo · All rights reserved</div>
+      <a class="admin" href="add.html">+ manage tracks</a>
+    </div>
   </footer>
 
+  <div class="player" id="player">
+    <div class="player-in">
+      <img id="p-cover" alt="" />
+      <div class="p-info">
+        <div class="p-title" id="p-title">—</div>
+        <div class="p-sub" id="p-sub">—</div>
+      </div>
+      <audio id="audio" controls autoplay></audio>
+      <div class="p-actions">
+        <button class="p-btn" id="p-prev" title="前の曲">⏮</button>
+        <button class="p-btn" id="p-shuffle" title="シャッフル">🔀</button>
+        <button class="p-btn" id="p-next" title="次の曲">⏭</button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    // ==== 必要に応じて外部リンクをここで設定 ====
+    const SOCIAL = {
+      youtube: "",     // 例: "https://www.youtube.com/@yourchannel"
+      instagram: "",   // 例: "https://www.instagram.com/enotocrecords"
+    };
+
     const state = { tracks: [], index: -1, shuffle: false };
     const $ = (id) => document.getElementById(id);
+    $("year").textContent = new Date().getFullYear();
 
-    function fmtDate(s) {
-      if (!s) return "–";
-      const d = new Date(s);
-      if (isNaN(d)) return "–";
-      return d.toLocaleString("ja-JP", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
+    // 外部リンクを反映（未設定ならクリックで案内）
+    document.querySelectorAll("[data-key]").forEach((el) => {
+      const url = SOCIAL[el.dataset.key];
+      if (url) el.href = url;
+      else el.addEventListener("click", (e) => { e.preventDefault();
+        alert("リンク未設定です。index.html の SOCIAL に URL を入れると有効になります。"); });
+    });
+
+    function esc(s){ return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+    function catNo(i){ const n = state.tracks.length - i; return "EN-" + String(n).padStart(3,"0"); }
+    function shortTag(t){
+      const s = String(t||"").split(/[,、;]/)[0].trim();
+      return s.length > 26 ? s.slice(0,26)+"…" : s;
     }
 
     function render() {
-      const app = $("app");
+      $("count").textContent = state.tracks.length ? String(state.tracks.length).padStart(2,"0") + " releases" : "";
+      const el = $("disco");
       if (!state.tracks.length) {
-        app.innerHTML = `
-          <div class="empty">
-            <h2>まだ曲がありません 🎵</h2>
-            <p>初回の自動生成が実行されると、ここに曲が並びます。</p>
-            <p style="margin-top:12px">GitHub の Secrets に <code>SUNO_COOKIE</code> を設定し、<br>
-            Actions の「Generate Music」を実行してください。</p>
-          </div>`;
+        el.className = "";
+        el.innerHTML = `<div class="empty"><span class="serif">No releases yet</span>
+          <div>最初のトラックが追加されると、ここに並びます。</div></div>`;
         return;
       }
-      const cards = state.tracks.map((t, i) => `
-        <div class="card ${i === state.index ? "active" : ""}" data-i="${i}">
-          <img class="cover" loading="lazy" src="${t.image_url || ""}" alt="${escapeHtml(t.title)}"
-               onerror="this.style.opacity=.4;this.removeAttribute('src')" />
-          <div class="card-body">
-            <div class="card-title">${escapeHtml(t.title)}</div>
-            <div class="card-sub">${escapeHtml(t.tags || t.prompt || "")}</div>
-            <div class="card-meta"><span>▶ 再生</span><span>${fmtDate(t.created_at)}</span></div>
+      el.className = "disco";
+      el.innerHTML = state.tracks.map((t,i)=>`
+        <div class="release ${i===state.index?"playing":""}" data-i="${i}">
+          <div class="cover-wrap">
+            <span class="cat">${catNo(i)}</span>
+            <img loading="lazy" src="${esc(t.image_url)}" alt="${esc(t.title)}"
+                 onerror="this.style.opacity=.25;this.removeAttribute('src')" />
+            <div class="play-badge">▶</div>
+          </div>
+          <div class="r-meta">
+            <div class="r-title">${esc(t.title)}</div>
+            <div class="r-sub">${esc(shortTag(t.tags || t.prompt) || "lo-fi")}</div>
           </div>
         </div>`).join("");
-      app.innerHTML = `<div class="grid">${cards}</div>`;
-      app.querySelectorAll(".card").forEach((el) => {
-        el.addEventListener("click", () => play(Number(el.dataset.i)));
-      });
+      el.querySelectorAll(".release").forEach(c=>c.addEventListener("click",()=>play(Number(c.dataset.i))));
     }
 
-    function escapeHtml(s) {
-      return String(s || "").replace(/[&<>"']/g, (c) =>
-        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-    }
-
-    function play(i) {
-      if (i < 0 || i >= state.tracks.length) return;
-      state.index = i;
-      const t = state.tracks[i];
+    function play(i){
+      if (i<0 || i>=state.tracks.length) return;
+      state.index = i; const t = state.tracks[i];
       $("audio").src = t.audio_url;
       $("p-cover").src = t.image_url || "";
       $("p-title").textContent = t.title;
-      $("p-sub").textContent = t.tags || t.prompt || "";
-      const dl = $("p-download");
-      dl.href = t.audio_url;
-      dl.setAttribute("download", (t.title || "track") + ".mp3");
+      $("p-sub").textContent = catNo(i) + " · " + (shortTag(t.tags||t.prompt) || "lo-fi");
       $("player").classList.add("show");
       render();
-      document.querySelector(".card.active")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
-
-    function next() {
-      if (!state.tracks.length) return;
-      if (state.shuffle) {
-        play(Math.floor(Math.random() * state.tracks.length));
-      } else {
-        play((state.index + 1) % state.tracks.length);
-      }
-    }
+    function next(){ if(!state.tracks.length) return;
+      play(state.shuffle ? Math.floor(Math.random()*state.tracks.length) : (state.index+1)%state.tracks.length); }
+    function prev(){ if(!state.tracks.length) return;
+      play((state.index-1+state.tracks.length)%state.tracks.length); }
 
     $("audio").addEventListener("ended", next);
-    $("p-shuffle").addEventListener("click", () => {
-      state.shuffle = !state.shuffle;
-      $("p-shuffle").style.opacity = state.shuffle ? 1 : 0.5;
-    });
-    $("p-shuffle").style.opacity = 0.5;
+    $("p-next").addEventListener("click", next);
+    $("p-prev").addEventListener("click", prev);
+    $("p-shuffle").addEventListener("click", (e)=>{ state.shuffle=!state.shuffle;
+      e.currentTarget.style.color = state.shuffle ? "var(--gold)" : ""; });
 
-    async function load() {
+    async function load(){
       try {
         const res = await fetch("data/tracks.json?_=" + Date.now());
         const db = await res.json();
         state.tracks = Array.isArray(db.tracks) ? db.tracks : [];
-        $("count").textContent = state.tracks.length;
-        $("updated").textContent = fmtDate(db.updated_at);
-      } catch (e) {
-        state.tracks = [];
-      }
+      } catch { state.tracks = []; }
       render();
     }
-
-    // リポジトリリンク（GitHub Pages 上ならホスト名から推定）
-    (function () {
-      const host = location.hostname; // e.g. user.github.io
-      const parts = location.pathname.split("/").filter(Boolean);
-      if (host.endsWith("github.io") && parts.length) {
-        const user = host.split(".")[0];
-        const repo = parts[0];
-        $("repo-link").innerHTML = `<a href="https://github.com/${user}/${repo}" target="_blank" rel="noopener">ソースコード</a>`;
-      }
-    })();
-
     load();
-    // 5分ごとに新しい曲を取り込む
-    setInterval(load, 5 * 60 * 1000);
   </script>
 </body>
 </html>

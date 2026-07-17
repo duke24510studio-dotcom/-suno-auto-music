@@ -152,11 +152,35 @@
     .about-card .k { color: var(--dim-2); font-family: "Space Mono", monospace; font-size: 12px; letter-spacing: .05em; }
     .about-card .v { color: var(--text); }
 
-    /* ===== Discography ===== */
-    .disco { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 26px; }
-    .release { cursor: pointer; }
-    .cover-wrap { position: relative; border-radius: 14px; overflow: hidden; aspect-ratio: 1;
-      background: linear-gradient(135deg, #241a2e, #2f2140); border: 1px solid var(--line); }
+    /* ===== Discography (横スワイプ・カルーセル) ===== */
+    .disco {
+      display: flex; gap: 20px;
+      overflow-x: auto; overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      padding: 6px 24px 30px;
+      margin: 0 -24px;                 /* 画面端まで“ブリード”させて没入感を出す */
+      scroll-padding: 0 24px;
+      scrollbar-width: thin; scrollbar-color: var(--line) transparent;
+    }
+    .disco::-webkit-scrollbar { height: 6px; }
+    .disco::-webkit-scrollbar-thumb { background: var(--line); border-radius: 999px; }
+    .disco::-webkit-scrollbar-track { background: transparent; }
+    .release {
+      flex: 0 0 auto;
+      width: min(72vw, 300px);
+      scroll-snap-align: center;
+      cursor: pointer;
+      transition: transform .4s cubic-bezier(.2,.7,.2,1), opacity .4s;
+    }
+    .swipe-hint {
+      display: none; margin: -14px 0 26px; color: var(--dim-2);
+      font-family: "Space Mono", monospace; font-size: 11px; letter-spacing: .28em;
+    }
+    @media (hover: none) and (pointer: coarse) { .swipe-hint { display: block; } }
+    .cover-wrap { position: relative; border-radius: 16px; overflow: hidden; aspect-ratio: 1;
+      background: linear-gradient(135deg, #241a2e, #2f2140); border: 1px solid var(--line);
+      box-shadow: 0 18px 40px rgba(0,0,0,.45); }
     .cover-wrap img { width: 100%; height: 100%; object-fit: cover; display: block;
       transition: transform .5s cubic-bezier(.2,.7,.2,1), filter .3s; filter: saturate(.92); }
     .release:hover img { transform: scale(1.06); filter: saturate(1.05); }
@@ -270,6 +294,7 @@
         <span class="rule"></span>
         <span class="no" id="count">—</span>
       </div>
+      <div class="swipe-hint">◂ swipe · スワイプ ▸</div>
       <div id="disco" class="disco"></div>
     </div>
   </section>
